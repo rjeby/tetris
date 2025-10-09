@@ -1,4 +1,4 @@
-import type { Game, BlockType, GridType } from "../types";
+import type { Game } from "../types";
 import { useEffect, useRef, useState } from "react";
 import {
   ROWS,
@@ -63,7 +63,6 @@ const Grid = () => {
         gridTemplateRows: `repeat(${ROWS}, 1fr)`,
         gridTemplateColumns: `repeat(${COLS}, 1fr)`,
       }}
-      onKeyDown={(event) => updateBlockPosition(event.key)}
     >
       {game.grid.map((row, rowIndex) =>
         row.map((cell, columnIndex) => (
@@ -75,28 +74,3 @@ const Grid = () => {
 };
 
 export default Grid;
-
-// const updateBlockPosition = (key: string) => {
-//   // console.log(block);
-//   // let updatedBlock: BlockType = [];
-//   // switch (key) {
-//   //   case "ArrowRight":
-//   //     updatedBlock = moveRight(block);
-//   //     break;
-//   //   case "ArrowLeft":
-//   //     updatedBlock = moveLeft(block);
-//   //     break;
-//   //   case "ArrowDown":
-//   //     updatedBlock = moveDown(block);
-//   //     break;
-//   //   default:
-//   // }
-//   // if (!isMoveValid(grid, updatedBlock)) {
-//   //   return;
-//   // }
-//   // if (doesBlockReachedTheEnd(updatedBlock)) {
-//   //   setGrid((gr) => getGrid(gr, updatedBlock));
-//   //   setBlock(() => initialStateI);
-//   // }
-//   // setBlock(updatedBlock);
-// };
