@@ -18,5 +18,14 @@ interface Game {
 type CellType = "I" | "O" | "T" | "L" | "J" | "Z" | "S" | "E";
 type GridType = Array<Array<CellType>>;
 type BlockType = Array<MemorizePosition>;
+type DirectionType = "right" | "down" | "left";
 
-export type { CellType, CellPosition, CellProps, GridType, BlockType, Game };
+export type {
+  CellType,
+  CellPosition,
+  CellProps,
+  GridType,
+  BlockType,
+  Game,
+  DirectionType,
+};

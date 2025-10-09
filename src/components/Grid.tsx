@@ -1,28 +1,12 @@
-import type { Game } from "../types";
+import type { DirectionType, Game } from "../types";
 import { useEffect, useRef, useState } from "react";
-import {
-  ROWS,
-  COLS,
-  moveDown,
-  doesBlockOverlap,
-  doesBlockReachedTheEnd,
-  getGrid,
-  getPreviousGrid,
-  getCurrentGrid,
-} from "../utils";
+import { ROWS, COLS, blockIInitialState, updateGame } from "../utils";
 import Cell from "./Cell";
-
-const initialStateI = [
-  { previous: { row: 0, column: 3 }, current: { row: 0, column: 3 } },
-  { previous: { row: 0, column: 4 }, current: { row: 0, column: 4 } },
-  { previous: { row: 0, column: 5 }, current: { row: 0, column: 5 } },
-  { previous: { row: 0, column: 6 }, current: { row: 0, column: 6 } },
-];
 
 const Grid = () => {
   const [game, setGame] = useState<Game>({
     grid: Array.from({ length: ROWS }, () => new Array(COLS).fill("E")),
-    block: initialStateI,
+    block: blockIInitialState,
   });
 
   const gridRef = useRef<HTMLDivElement>(null);
@@ -38,21 +22,22 @@ const Grid = () => {
       setGame((game) => {
         const grid = game.grid;
         const block = game.block;
-        const updatedBlock = moveDown(block);
-
-        if (doesBlockOverlap(grid, block)) {
-          return { grid: getPreviousGrid(grid, block), block: initialStateI };
-        }
-
-        if (doesBlockReachedTheEnd(block)) {
-          return { grid: getCurrentGrid(grid, block), block: initialStateI };
-        }
-
-        return { grid: getGrid(grid, block), block: updatedBlock };
+        return updateGame(grid, block, "down");
       });
     }, 100);
     return () => clearInterval(intervalId);
   }, []);
+
+  const handleKeyStroke = (key: string) => {
+    if (["ArrowRight", "ArrowLeft", "ArrowDown"].includes(key)) {
+      const direction = key.substring(5).toLowerCase() as DirectionType;
+      setGame((game) => {
+        const grid = game.grid;
+        const block = game.block;
+        return updateGame(grid, block, direction);
+      });
+    }
+  };
 
   return (
     <div
@@ -63,6 +48,7 @@ const Grid = () => {
         gridTemplateRows: `repeat(${ROWS}, 1fr)`,
         gridTemplateColumns: `repeat(${COLS}, 1fr)`,
       }}
+      onKeyDown={(event) => handleKeyStroke(event.key)}
     >
       {game.grid.map((row, rowIndex) =>
         row.map((cell, columnIndex) => (
