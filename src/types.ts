@@ -10,9 +10,11 @@ interface CellProps {
   type: CellType;
 }
 
-interface Game {
+interface GameType {
   grid: GridType;
   block: BlockType;
+  isGameOver: boolean;
+  intervalId: number;
 }
 
 type CellType = "I" | "O" | "T" | "L" | "J" | "Z" | "S" | "E";
@@ -26,6 +28,6 @@ export type {
   CellProps,
   GridType,
   BlockType,
-  Game,
+  GameType,
   DirectionType,
 };

@@ -1,15 +1,12 @@
-import type { DirectionType, Game } from "../types";
+import type { DirectionType, GameType } from "../types";
 import { useEffect, useRef, useState } from "react";
-import { ROWS, COLS, blockIInitialState, updateGame } from "../utils";
+import { ROWS, COLS, GAME_INITIAL_STATE, updateGame } from "../utils";
 import Cell from "./Cell";
 
 const Grid = () => {
-  const [game, setGame] = useState<Game>({
-    grid: Array.from({ length: ROWS }, () => new Array(COLS).fill("E")),
-    block: blockIInitialState,
-  });
-
+  const [game, setGame] = useState<GameType>(GAME_INITIAL_STATE);
   const gridRef = useRef<HTMLDivElement>(null);
+  const intervalRef = useRef<number>(-1);
 
   useEffect(() => {
     if (gridRef.current) {
@@ -18,44 +15,50 @@ const Grid = () => {
   }, []);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setGame((game) => {
-        const grid = game.grid;
-        const block = game.block;
-        return updateGame(grid, block, "down");
-      });
+    intervalRef.current = setInterval(() => {
+      setGame((game) => updateGameState(game, "down"));
     }, 100);
-    return () => clearInterval(intervalId);
+    return () => clearInterval(intervalRef.current);
   }, []);
 
   const handleKeyStroke = (key: string) => {
     if (["ArrowRight", "ArrowLeft", "ArrowDown"].includes(key)) {
       const direction = key.substring(5).toLowerCase() as DirectionType;
-      setGame((game) => {
-        const grid = game.grid;
-        const block = game.block;
-        return updateGame(grid, block, direction);
-      });
+      setGame((game) => updateGameState(game, direction));
     }
   };
 
+  const updateGameState = (game: GameType, direction: DirectionType) => {
+    const updatedGameState = updateGame(game, direction);
+    if (updatedGameState.isGameOver) {
+      clearInterval(intervalRef.current);
+    }
+    return updatedGameState;
+  };
+
   return (
-    <div
-      ref={gridRef}
-      tabIndex={0}
-      className="grid border-1 border-black"
-      style={{
-        gridTemplateRows: `repeat(${ROWS}, 1fr)`,
-        gridTemplateColumns: `repeat(${COLS}, 1fr)`,
-      }}
-      onKeyDown={(event) => handleKeyStroke(event.key)}
-    >
-      {game.grid.map((row, rowIndex) =>
-        row.map((cell, columnIndex) => (
-          <Cell key={`${rowIndex}#${columnIndex}`} type={cell} />
-        )),
+    <>
+      {game.isGameOver ? (
+        <span className="text-9xl">GAME OVER</span>
+      ) : (
+        <div
+          ref={gridRef}
+          tabIndex={0}
+          className="grid border-1 border-black"
+          style={{
+            gridTemplateRows: `repeat(${ROWS}, 1fr)`,
+            gridTemplateColumns: `repeat(${COLS}, 1fr)`,
+          }}
+          onKeyDown={(event) => handleKeyStroke(event.key)}
+        >
+          {game.grid.map((row, rowIndex) =>
+            row.map((cell, columnIndex) => (
+              <Cell key={`${rowIndex}#${columnIndex}`} type={cell} />
+            )),
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 };
 

@@ -1,37 +1,29 @@
-import type { BlockType, DirectionType, GridType } from "./types";
+import type { BlockType, DirectionType, GridType, GameType } from "./types";
 
-const ROWS = 25;
-const COLS = 15;
+// Utility Functions
 
-const blockIInitialState = [
-  { previous: { row: 0, column: 3 }, current: { row: 0, column: 3 } },
-  { previous: { row: 0, column: 4 }, current: { row: 0, column: 4 } },
-  { previous: { row: 0, column: 5 }, current: { row: 0, column: 5 } },
-  { previous: { row: 0, column: 6 }, current: { row: 0, column: 6 } },
-];
-
-const moveRight = (block: BlockType) => {
+const moveBlockRight = (block: BlockType) => {
   return block.map((cell) => ({
     previous: { row: cell.current.row, column: cell.current.column },
     current: { row: cell.current.row, column: cell.current.column + 1 },
   }));
 };
 
-const moveLeft = (block: BlockType) => {
+const moveBlockLeft = (block: BlockType) => {
   return block.map((cell) => ({
     previous: { row: cell.current.row, column: cell.current.column },
     current: { row: cell.current.row, column: cell.current.column - 1 },
   }));
 };
 
-const moveDown = (block: BlockType) => {
+const moveBlockDown = (block: BlockType) => {
   return block.map((cell) => ({
     previous: { row: cell.current.row, column: cell.current.column },
     current: { row: cell.current.row + 1, column: cell.current.column },
   }));
 };
 
-const isMoveInGrid = (block: BlockType) => {
+const isBlockInGrid = (block: BlockType) => {
   let minRowIndex = Infinity;
   let maxRowIndex = -Infinity;
   let minColumnIndex = Infinity;
@@ -56,7 +48,7 @@ const isMoveInGrid = (block: BlockType) => {
   );
 };
 
-const doesBlockOverlap = (grid: GridType, block: BlockType) => {
+const isBlockOverlapping = (grid: GridType, block: BlockType) => {
   const previousPositions = new Set();
 
   for (const position of block) {
@@ -79,11 +71,7 @@ const doesBlockOverlap = (grid: GridType, block: BlockType) => {
   return false;
 };
 
-const isMoveValid = (grid: GridType, block: BlockType) => {
-  return isMoveInGrid(block) && !doesBlockOverlap(grid, block);
-};
-
-const doesBlockReachedTheEnd = (block: BlockType) => {
+const isBlockAtEnd = (block: BlockType) => {
   for (const position of block) {
     if (position.current.row === ROWS - 1) {
       return true;
@@ -92,10 +80,34 @@ const doesBlockReachedTheEnd = (block: BlockType) => {
   return false;
 };
 
-const getGrid = (grid: GridType, block: BlockType) => {
+const isGameOver = (grid: GridType, block: BlockType) => {
+  const previousPositions = new Set();
+  for (const position of block) {
+    const previousRow = position.previous.row;
+    const previousColumn = position.previous.column;
+    previousPositions.add(`${previousRow}#${previousColumn}`);
+  }
+
+  for (const position of block) {
+    const row = position.current.row;
+    const column = position.current.column;
+    if (
+      row === 0 &&
+      !previousPositions.has(`${row}#${column}`) &&
+      grid[row][column] !== "E"
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const applyCurrentBlockToGrid = (grid: GridType, block: BlockType) => {
   const updatedGrid = [...grid.map((row) => [...row])];
   for (const position of block) {
-    updatedGrid[position.previous.row][position.previous.column] = "E";
+    if (position.previous.row !== -1 && position.previous.column !== -1) {
+      updatedGrid[position.previous.row][position.previous.column] = "E";
+    }
   }
   for (const position of block) {
     updatedGrid[position.current.row][position.current.column] = "I";
@@ -103,16 +115,7 @@ const getGrid = (grid: GridType, block: BlockType) => {
   return updatedGrid;
 };
 
-const getCurrentGrid = (grid: GridType, block: BlockType) => {
-  const updatedGrid = [...grid.map((row) => [...row])];
-  for (const position of block) {
-    updatedGrid[position.previous.row][position.previous.column] = "E";
-    updatedGrid[position.current.row][position.current.column] = "I";
-  }
-  return updatedGrid;
-};
-
-const getPreviousGrid = (grid: GridType, block: BlockType) => {
+const applyPreviousBlockToGrid = (grid: GridType, block: BlockType) => {
   const updatedGrid = [...grid.map((row) => [...row])];
   for (const position of block) {
     updatedGrid[position.previous.row][position.previous.column] = "I";
@@ -122,57 +125,84 @@ const getPreviousGrid = (grid: GridType, block: BlockType) => {
 
 const updateBlock = (block: BlockType, direction: DirectionType) => {
   if (direction === "left") {
-    return moveLeft(block);
+    return moveBlockLeft(block);
   }
 
   if (direction === "right") {
-    return moveRight(block);
+    return moveBlockRight(block);
   }
 
-  return moveDown(block);
+  return moveBlockDown(block);
 };
 
-const makeMoveValid = (block: BlockType) => {
-  return block.map((cell) => ({
-    previous: { row: cell.current.row, column: cell.current.column },
-    current: { row: cell.current.row, column: cell.current.column },
-  }));
+const updateGame = (game: GameType, direction: DirectionType) => {
+  const grid = game.grid;
+  const block = game.block;
+
+  const updatedBlock = updateBlock(block, direction);
+
+  if (!isBlockInGrid(updatedBlock)) {
+    return game;
+  }
+
+  if (isBlockOverlapping(grid, updatedBlock)) {
+    const intermediateGrid = applyPreviousBlockToGrid(grid, updatedBlock);
+    const updatedGrid = applyCurrentBlockToGrid(
+      intermediateGrid,
+      BLOCK_I_INITIAL_STATE,
+    );
+    return {
+      grid: updatedGrid,
+      block: BLOCK_I_INITIAL_STATE,
+      isGameOver: isGameOver(intermediateGrid, BLOCK_I_INITIAL_STATE),
+    };
+  }
+
+  if (isBlockAtEnd(updatedBlock)) {
+    const intermediateGrid = applyCurrentBlockToGrid(grid, updatedBlock);
+    const updatedGrid = applyCurrentBlockToGrid(
+      intermediateGrid,
+      BLOCK_I_INITIAL_STATE,
+    );
+    return {
+      grid: updatedGrid,
+      block: BLOCK_I_INITIAL_STATE,
+      isGameOver: isGameOver(intermediateGrid, BLOCK_I_INITIAL_STATE),
+    };
+  }
+
+  return {
+    grid: applyCurrentBlockToGrid(grid, updatedBlock),
+    block: updatedBlock,
+    isGameOver: false,
+  };
 };
 
-const updateGame = (
-  grid: GridType,
-  block: BlockType,
-  direction: DirectionType,
-) => {
-  const movedBlock = updateBlock(block, direction);
-  const updatedBlock = !isMoveInGrid(movedBlock)
-    ? makeMoveValid(block)
-    : movedBlock;
+// Constants
 
-  if (doesBlockOverlap(grid, block)) {
-    return { grid: getPreviousGrid(grid, block), block: blockIInitialState };
-  }
+const ROWS = 25;
+const COLS = 15;
 
-  if (doesBlockReachedTheEnd(block)) {
-    return { grid: getCurrentGrid(grid, block), block: blockIInitialState };
-  }
+const BLOCK_I_INITIAL_STATE = [
+  { previous: { row: -1, column: -1 }, current: { row: 0, column: 3 } },
+  { previous: { row: -1, column: -1 }, current: { row: 0, column: 4 } },
+  { previous: { row: -1, column: -1 }, current: { row: 0, column: 5 } },
+  { previous: { row: -1, column: -1 }, current: { row: 0, column: 6 } },
+];
 
-  return { grid: getGrid(grid, block), block: updatedBlock };
+const GAME_INITIAL_STATE = {
+  grid: applyCurrentBlockToGrid(
+    Array.from({ length: ROWS }, () => new Array(COLS).fill("E")),
+    BLOCK_I_INITIAL_STATE,
+  ),
+  block: BLOCK_I_INITIAL_STATE,
+  isGameOver: false,
 };
 
 export {
   ROWS,
   COLS,
-  blockIInitialState,
-  moveRight,
-  moveLeft,
-  moveDown,
-  isMoveInGrid,
-  doesBlockOverlap,
-  isMoveValid,
-  doesBlockReachedTheEnd,
-  getGrid,
-  getCurrentGrid,
-  getPreviousGrid,
+  BLOCK_I_INITIAL_STATE,
+  GAME_INITIAL_STATE,
   updateGame,
 };
