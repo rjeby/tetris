@@ -23,6 +23,68 @@ const moveBlockDown = (block: BlockType) => {
   }));
 };
 
+const isBlockHorizontal = (block: BlockType) => {
+  const commonRow = block[0].current.row;
+  for (const position of block) {
+    if (position.current.row !== commonRow) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const rotateIBlock = (block: BlockType) => {
+  const N = block.length;
+  const rotationCenter = block[N - 1];
+  const _isBlockHorizontal = isBlockHorizontal(block);
+  return block.map((cell, index) => ({
+    previous: { row: cell.current.row, column: cell.current.column },
+    current: {
+      row: _isBlockHorizontal
+        ? rotationCenter.current.row + index - N + 1
+        : rotationCenter.current.row,
+      column: _isBlockHorizontal
+        ? rotationCenter.current.column
+        : rotationCenter.current.column + index - N + 1,
+    },
+  }));
+};
+
+const hasCompleteRow = (grid: GridType) => {
+  for (let row = 0; row < ROWS; row++) {
+    let isRowComplete = true;
+    for (const cell of grid[row]) {
+      if (cell === "E") {
+        isRowComplete = false;
+        break;
+      }
+    }
+    if (isRowComplete) {
+      return row;
+    }
+  }
+
+  return -1;
+};
+
+const removeCompleteRow = (grid: GridType) => {
+  const completeRowIndex = hasCompleteRow(grid);
+  if (completeRowIndex === -1) {
+    return;
+  }
+
+  for (let row = completeRowIndex; row >= 1; row--) {
+    for (let column = 0; column < COLS; column++) {
+      grid[row][column] = grid[row - 1][column];
+    }
+  }
+
+  for (let column = 0; column < COLS; column++) {
+    grid[0][column] = "E";
+  }
+};
+
 const isBlockInGrid = (block: BlockType) => {
   let minRowIndex = Infinity;
   let maxRowIndex = -Infinity;
@@ -132,6 +194,10 @@ const updateBlock = (block: BlockType, direction: DirectionType) => {
     return moveBlockRight(block);
   }
 
+  if (direction === "up") {
+    return rotateIBlock(block);
+  }
+
   return moveBlockDown(block);
 };
 
@@ -147,6 +213,7 @@ const updateGame = (game: GameType, direction: DirectionType) => {
 
   if (isBlockOverlapping(grid, updatedBlock)) {
     const intermediateGrid = applyPreviousBlockToGrid(grid, updatedBlock);
+    removeCompleteRow(intermediateGrid);
     const updatedGrid = applyCurrentBlockToGrid(
       intermediateGrid,
       BLOCK_I_INITIAL_STATE,
@@ -160,6 +227,7 @@ const updateGame = (game: GameType, direction: DirectionType) => {
 
   if (isBlockAtEnd(updatedBlock)) {
     const intermediateGrid = applyCurrentBlockToGrid(grid, updatedBlock);
+    removeCompleteRow(intermediateGrid);
     const updatedGrid = applyCurrentBlockToGrid(
       intermediateGrid,
       BLOCK_I_INITIAL_STATE,
@@ -199,10 +267,4 @@ const GAME_INITIAL_STATE = {
   isGameOver: false,
 };
 
-export {
-  ROWS,
-  COLS,
-  BLOCK_I_INITIAL_STATE,
-  GAME_INITIAL_STATE,
-  updateGame,
-};
+export { ROWS, COLS, BLOCK_I_INITIAL_STATE, GAME_INITIAL_STATE, updateGame };

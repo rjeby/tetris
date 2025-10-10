@@ -14,13 +14,12 @@ interface GameType {
   grid: GridType;
   block: BlockType;
   isGameOver: boolean;
-  intervalId: number;
 }
 
 type CellType = "I" | "O" | "T" | "L" | "J" | "Z" | "S" | "E";
 type GridType = Array<Array<CellType>>;
 type BlockType = Array<MemorizePosition>;
-type DirectionType = "right" | "down" | "left";
+type DirectionType = "right" | "down" | "left" | "up";
 
 export type {
   CellType,

@@ -17,12 +17,12 @@ const Grid = () => {
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setGame((game) => updateGameState(game, "down"));
-    }, 100);
+    }, 1000);
     return () => clearInterval(intervalRef.current);
   }, []);
 
   const handleKeyStroke = (key: string) => {
-    if (["ArrowRight", "ArrowLeft", "ArrowDown"].includes(key)) {
+    if (["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"].includes(key)) {
       const direction = key.substring(5).toLowerCase() as DirectionType;
       setGame((game) => updateGameState(game, direction));
     }
