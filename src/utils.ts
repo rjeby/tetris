@@ -1,9 +1,17 @@
-import type { BlockType, DirectionType, GridType, GameType } from "./types";
+import type {
+  BlockType,
+  DirectionType,
+  GridType,
+  GameType,
+  BlockCellType,
+} from "./types";
 
 // Utility Functions
 
 const moveBlockRight = (block: BlockType) => {
   return block.map((cell) => ({
+    cellType: cell.cellType,
+
     previous: { row: cell.current.row, column: cell.current.column },
     current: { row: cell.current.row, column: cell.current.column + 1 },
   }));
@@ -11,6 +19,7 @@ const moveBlockRight = (block: BlockType) => {
 
 const moveBlockLeft = (block: BlockType) => {
   return block.map((cell) => ({
+    cellType: cell.cellType,
     previous: { row: cell.current.row, column: cell.current.column },
     current: { row: cell.current.row, column: cell.current.column - 1 },
   }));
@@ -18,40 +27,42 @@ const moveBlockLeft = (block: BlockType) => {
 
 const moveBlockDown = (block: BlockType) => {
   return block.map((cell) => ({
+    cellType: cell.cellType,
     previous: { row: cell.current.row, column: cell.current.column },
     current: { row: cell.current.row + 1, column: cell.current.column },
   }));
 };
 
-const isBlockHorizontal = (block: BlockType) => {
-  const commonRow = block[0].current.row;
-  for (const position of block) {
-    if (position.current.row !== commonRow) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const rotateIBlock = (block: BlockType) => {
+const getRotationCoefficient = (block: BlockType) => {
   const N = block.length;
   const rotationCenter = block[N - 1];
-  const _isBlockHorizontal = isBlockHorizontal(block);
-  return block.map((cell, index) => ({
+  const rotationCenterNeighbor = block[N - 2];
+  const rY = rotationCenterNeighbor.current.column;
+  const cY = rotationCenter.current.column;
+
+  return rY < cY || rY > cY ? 1 : -1;
+};
+
+const rotateBlock = (block: BlockType) => {
+  const N = block.length;
+  const rotationCenter = block[N - 1];
+  const cX = rotationCenter.current.row;
+  const cY = rotationCenter.current.column;
+  const coeff = getRotationCoefficient(block);
+  return block.map((cell) => ({
+    cellType: cell.cellType,
+
     previous: { row: cell.current.row, column: cell.current.column },
     current: {
-      row: _isBlockHorizontal
-        ? rotationCenter.current.row + index - N + 1
-        : rotationCenter.current.row,
-      column: _isBlockHorizontal
-        ? rotationCenter.current.column
-        : rotationCenter.current.column + index - N + 1,
+      row: cX + coeff * (cell.current.column - cY),
+      column: cY + coeff * (cell.current.row - cX),
     },
   }));
 };
 
 const hasCompleteRow = (grid: GridType) => {
+  let minCompleteRowIndex = Infinity;
+  let maxCompleteRowIndex = -Infinity;
   for (let row = 0; row < ROWS; row++) {
     let isRowComplete = true;
     for (const cell of grid[row]) {
@@ -61,28 +72,34 @@ const hasCompleteRow = (grid: GridType) => {
       }
     }
     if (isRowComplete) {
-      return row;
+      minCompleteRowIndex = Math.min(row, minCompleteRowIndex);
+      maxCompleteRowIndex = Math.max(row, maxCompleteRowIndex);
     }
   }
 
-  return -1;
+  return [minCompleteRowIndex, maxCompleteRowIndex];
 };
 
-const removeCompleteRow = (grid: GridType) => {
-  const completeRowIndex = hasCompleteRow(grid);
-  if (completeRowIndex === -1) {
-    return;
+const removeCompleteRows = (grid: GridType) => {
+  const [minCompleteRowIndex, maxCompleteRowIndex] = hasCompleteRow(grid);
+  const offset = maxCompleteRowIndex - minCompleteRowIndex + 1;
+  if (minCompleteRowIndex === Infinity) {
+    return 0;
   }
 
-  for (let row = completeRowIndex; row >= 1; row--) {
+  for (let row = maxCompleteRowIndex; row - offset >= 0; row--) {
     for (let column = 0; column < COLS; column++) {
-      grid[row][column] = grid[row - 1][column];
+      grid[row][column] = grid[row - offset][column];
     }
   }
 
-  for (let column = 0; column < COLS; column++) {
-    grid[0][column] = "E";
+  for (let row = 0; row < offset; row++) {
+    for (let column = 0; column < COLS; column++) {
+      grid[row][column] = "E";
+    }
   }
+
+  return offset;
 };
 
 const isBlockInGrid = (block: BlockType) => {
@@ -172,7 +189,8 @@ const applyCurrentBlockToGrid = (grid: GridType, block: BlockType) => {
     }
   }
   for (const position of block) {
-    updatedGrid[position.current.row][position.current.column] = "I";
+    updatedGrid[position.current.row][position.current.column] =
+      position.cellType;
   }
   return updatedGrid;
 };
@@ -180,7 +198,8 @@ const applyCurrentBlockToGrid = (grid: GridType, block: BlockType) => {
 const applyPreviousBlockToGrid = (grid: GridType, block: BlockType) => {
   const updatedGrid = [...grid.map((row) => [...row])];
   for (const position of block) {
-    updatedGrid[position.previous.row][position.previous.column] = "I";
+    updatedGrid[position.previous.row][position.previous.column] =
+      position.cellType;
   }
   return updatedGrid;
 };
@@ -195,16 +214,23 @@ const updateBlock = (block: BlockType, direction: DirectionType) => {
   }
 
   if (direction === "up") {
-    return rotateIBlock(block);
+    return rotateBlock(block);
   }
 
   return moveBlockDown(block);
 };
 
+const generateRandomInitialState = () => {
+  const initialStatesTypes = ["I", "O", "T", "S", "Z", "J", "L"];
+  const randomIndex = Math.floor(Math.random() * initialStatesTypes.length);
+  const randomStateType = initialStatesTypes[randomIndex] as BlockCellType;
+  return BLOCKS_INITIAL_STATES[randomStateType];
+};
+
 const updateGame = (game: GameType, direction: DirectionType) => {
   const grid = game.grid;
   const block = game.block;
-
+  const score = game.score;
   const updatedBlock = updateBlock(block, direction);
 
   if (!isBlockInGrid(updatedBlock)) {
@@ -213,35 +239,40 @@ const updateGame = (game: GameType, direction: DirectionType) => {
 
   if (isBlockOverlapping(grid, updatedBlock)) {
     const intermediateGrid = applyPreviousBlockToGrid(grid, updatedBlock);
-    removeCompleteRow(intermediateGrid);
+    const points = removeCompleteRows(intermediateGrid);
+    const randomInitialState = generateRandomInitialState();
     const updatedGrid = applyCurrentBlockToGrid(
       intermediateGrid,
-      BLOCK_I_INITIAL_STATE,
+      randomInitialState,
     );
     return {
       grid: updatedGrid,
-      block: BLOCK_I_INITIAL_STATE,
-      isGameOver: isGameOver(intermediateGrid, BLOCK_I_INITIAL_STATE),
+      block: randomInitialState,
+      score: score + points * POINTS_FACTOR,
+      isGameOver: isGameOver(intermediateGrid, randomInitialState),
     };
   }
 
   if (isBlockAtEnd(updatedBlock)) {
     const intermediateGrid = applyCurrentBlockToGrid(grid, updatedBlock);
-    removeCompleteRow(intermediateGrid);
+    const points = removeCompleteRows(intermediateGrid);
+    const randomInitialState = generateRandomInitialState();
     const updatedGrid = applyCurrentBlockToGrid(
       intermediateGrid,
-      BLOCK_I_INITIAL_STATE,
+      randomInitialState,
     );
     return {
       grid: updatedGrid,
-      block: BLOCK_I_INITIAL_STATE,
-      isGameOver: isGameOver(intermediateGrid, BLOCK_I_INITIAL_STATE),
+      block: randomInitialState,
+      score: score + points * POINTS_FACTOR,
+      isGameOver: isGameOver(intermediateGrid, randomInitialState),
     };
   }
 
   return {
     grid: applyCurrentBlockToGrid(grid, updatedBlock),
     block: updatedBlock,
+    score: score,
     isGameOver: false,
   };
 };
@@ -250,13 +281,178 @@ const updateGame = (game: GameType, direction: DirectionType) => {
 
 const ROWS = 25;
 const COLS = 15;
+const POINTS_FACTOR = 100;
 
-const BLOCK_I_INITIAL_STATE = [
-  { previous: { row: -1, column: -1 }, current: { row: 0, column: 3 } },
-  { previous: { row: -1, column: -1 }, current: { row: 0, column: 4 } },
-  { previous: { row: -1, column: -1 }, current: { row: 0, column: 5 } },
-  { previous: { row: -1, column: -1 }, current: { row: 0, column: 6 } },
+const BLOCK_I_INITIAL_STATE: BlockType = [
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 3 },
+    cellType: "I",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 4 },
+    cellType: "I",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 5 },
+    cellType: "I",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 6 },
+    cellType: "I",
+  },
 ];
+
+const BLOCK_O_INITIAL_STATE: BlockType = [
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 4 },
+    cellType: "O",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 5 },
+    cellType: "O",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 1, column: 4 },
+    cellType: "O",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 1, column: 5 },
+    cellType: "O",
+  },
+];
+
+const BLOCK_T_INITIAL_STATE: BlockType = [
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 3 },
+    cellType: "T",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 5 },
+    cellType: "T",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 1, column: 4 },
+    cellType: "T",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 4 },
+    cellType: "T",
+  },
+];
+
+const BLOCK_S_INITIAL_STATE: BlockType = [
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 5 },
+    cellType: "S",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 4 },
+    cellType: "S",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 1, column: 4 },
+    cellType: "S",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 1, column: 3 },
+    cellType: "S",
+  },
+];
+
+const BLOCK_Z_INITIAL_STATE: BlockType = [
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 3 },
+    cellType: "Z",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 4 },
+    cellType: "Z",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 1, column: 4 },
+    cellType: "Z",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 1, column: 5 },
+    cellType: "Z",
+  },
+];
+
+const BLOCK_J_INITIAL_STATE: BlockType = [
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 1, column: 5 },
+    cellType: "J",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 3 },
+    cellType: "J",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 4 },
+    cellType: "J",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 5 },
+    cellType: "J",
+  },
+];
+
+const BLOCK_L_INITIAL_STATE: BlockType = [
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 1, column: 3 },
+    cellType: "L",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 3 },
+    cellType: "L",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 4 },
+    cellType: "L",
+  },
+  {
+    previous: { row: -1, column: -1 },
+    current: { row: 0, column: 5 },
+    cellType: "L",
+  },
+];
+
+const BLOCKS_INITIAL_STATES = {
+  I: BLOCK_I_INITIAL_STATE,
+  O: BLOCK_O_INITIAL_STATE,
+  T: BLOCK_T_INITIAL_STATE,
+  S: BLOCK_S_INITIAL_STATE,
+  Z: BLOCK_Z_INITIAL_STATE,
+  J: BLOCK_J_INITIAL_STATE,
+  L: BLOCK_L_INITIAL_STATE,
+};
 
 const GAME_INITIAL_STATE = {
   grid: applyCurrentBlockToGrid(
@@ -264,7 +460,20 @@ const GAME_INITIAL_STATE = {
     BLOCK_I_INITIAL_STATE,
   ),
   block: BLOCK_I_INITIAL_STATE,
+  score: 0,
   isGameOver: false,
 };
 
-export { ROWS, COLS, BLOCK_I_INITIAL_STATE, GAME_INITIAL_STATE, updateGame };
+export {
+  ROWS,
+  COLS,
+  BLOCK_I_INITIAL_STATE,
+  BLOCK_O_INITIAL_STATE,
+  BLOCK_J_INITIAL_STATE,
+  BLOCK_T_INITIAL_STATE,
+  BLOCK_S_INITIAL_STATE,
+  BLOCK_L_INITIAL_STATE,
+  BLOCK_Z_INITIAL_STATE,
+  GAME_INITIAL_STATE,
+  updateGame,
+};
