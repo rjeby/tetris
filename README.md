@@ -1,3 +1,3 @@
-# Tetris
+# Tetris (in progress)
 
 A simple **Tetris clone** built with **React** ...
