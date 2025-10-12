@@ -1,6 +1,7 @@
 import type { DirectionType, GameType, CleanInfosType } from "../types";
 import { useEffect, useRef, useState } from "react";
-import { ROWS, COLS, GAME_INITIAL_STATE, updateGame } from "../utils";
+import { updateGame, GAME_INITIAL_STATE } from "../utils";
+import { ROWS, COLS } from "../constants";
 import Cell from "./Cell";
 
 const Grid = () => {
@@ -11,16 +12,14 @@ const Grid = () => {
   });
 
   useEffect(() => {
+    const pointer = cleanRef.current;
     const handleKeyDown = (event: KeyboardEvent) => handleKeyStroke(event.key);
-
     cleanRef.current.intervalID = setInterval(() => {
       setGame((game) => updateGameState(game, "down"));
-    }, 2000000);
+    }, 1000);
     cleanRef.current.handleKeyPress = handleKeyDown;
-
     window.addEventListener("keydown", handleKeyDown);
 
-    const pointer = cleanRef.current;
     return () => {
       clearInterval(pointer.intervalID);
       window.removeEventListener("keydown", pointer.handleKeyPress);
@@ -28,7 +27,7 @@ const Grid = () => {
   }, []);
 
   const handleKeyStroke = (key: string) => {
-    if (["ArrowRight", "ArrowDown", "ArrowLeft"].includes(key)) {
+    if (["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"].includes(key)) {
       const direction = key.substring(5).toLowerCase() as DirectionType;
       setGame((game) => updateGameState(game, direction));
     }

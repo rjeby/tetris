@@ -1,3 +1,10 @@
+import {
+  BLOCKS_INITIAL_STATES,
+  BLOCK_I_INITIAL_STATE,
+  COLS,
+  POINTS_FACTOR,
+  ROWS,
+} from "./constants";
 import type {
   BlockType,
   DirectionType,
@@ -5,8 +12,6 @@ import type {
   GameType,
   BlockCellType,
 } from "./types";
-
-// Utility Functions
 
 const moveBlockRight = (block: BlockType) => {
   return block.map((cell) => ({
@@ -46,6 +51,13 @@ const getRotationCoefficient = (block: BlockType) => {
 const rotateBlock = (block: BlockType) => {
   const N = block.length;
   const rotationCenter = block[N - 1];
+  if (rotationCenter.cellType === "O") {
+    return block.map((cell) => ({
+      cellType: cell.cellType,
+      previous: { row: cell.current.row, column: cell.current.column },
+      current: { row: cell.current.row, column: cell.current.column },
+    }));
+  }
   const cX = rotationCenter.current.row;
   const cY = rotationCenter.current.column;
   const coeff = getRotationCoefficient(block);
@@ -277,183 +289,6 @@ const updateGame = (game: GameType, direction: DirectionType) => {
   };
 };
 
-// Constants
-
-const ROWS = 25;
-const COLS = 15;
-const POINTS_FACTOR = 100;
-
-const BLOCK_I_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 3 },
-    cellType: "I",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "I",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "I",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 6 },
-    cellType: "I",
-  },
-];
-
-const BLOCK_O_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "O",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "O",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 4 },
-    cellType: "O",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 5 },
-    cellType: "O",
-  },
-];
-
-const BLOCK_T_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 3 },
-    cellType: "T",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "T",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 4 },
-    cellType: "T",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "T",
-  },
-];
-
-const BLOCK_S_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "S",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "S",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 4 },
-    cellType: "S",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 3 },
-    cellType: "S",
-  },
-];
-
-const BLOCK_Z_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 3 },
-    cellType: "Z",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "Z",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 4 },
-    cellType: "Z",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 5 },
-    cellType: "Z",
-  },
-];
-
-const BLOCK_J_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 5 },
-    cellType: "J",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 3 },
-    cellType: "J",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "J",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "J",
-  },
-];
-
-const BLOCK_L_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 3 },
-    cellType: "L",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 3 },
-    cellType: "L",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "L",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "L",
-  },
-];
-
-const BLOCKS_INITIAL_STATES = {
-  I: BLOCK_I_INITIAL_STATE,
-  O: BLOCK_O_INITIAL_STATE,
-  T: BLOCK_T_INITIAL_STATE,
-  S: BLOCK_S_INITIAL_STATE,
-  Z: BLOCK_Z_INITIAL_STATE,
-  J: BLOCK_J_INITIAL_STATE,
-  L: BLOCK_L_INITIAL_STATE,
-};
-
 const GAME_INITIAL_STATE = {
   grid: applyCurrentBlockToGrid(
     Array.from({ length: ROWS }, () => new Array(COLS).fill("E")),
@@ -464,16 +299,4 @@ const GAME_INITIAL_STATE = {
   isGameOver: false,
 };
 
-export {
-  ROWS,
-  COLS,
-  BLOCK_I_INITIAL_STATE,
-  BLOCK_O_INITIAL_STATE,
-  BLOCK_J_INITIAL_STATE,
-  BLOCK_T_INITIAL_STATE,
-  BLOCK_S_INITIAL_STATE,
-  BLOCK_L_INITIAL_STATE,
-  BLOCK_Z_INITIAL_STATE,
-  GAME_INITIAL_STATE,
-  updateGame,
-};
+export { applyCurrentBlockToGrid, updateGame, GAME_INITIAL_STATE };
