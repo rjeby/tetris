@@ -1,42 +1,65 @@
+interface Block {
+  type: CellType;
+  cells: Array<CellPosition>;
+}
+
+interface Cell {
+  type: CellType;
+  position: CellPosition;
+}
+
 interface CellPosition {
   row: number;
   column: number;
 }
-interface MemorizePosition {
-  cellType: CellType;
-  previous: CellPosition;
-  current: CellPosition;
-}
-interface CellProps {
-  type: CellType;
-}
 
-interface GameType {
-  grid: GridType;
-  block: BlockType;
-  score: number;
-  isGameOver: boolean;
-}
-
-interface CleanInfosType {
+interface CleanupInfo {
   intervalID: number;
   handleKeyPress: (event: KeyboardEvent) => void;
 }
 
+interface GameState {
+  grid: Grid;
+  block: Block;
+  score: number;
+  isGameOver: boolean;
+}
+
+interface GameBlockProps {
+  block: Block;
+}
+
+interface GameContainerProps {
+  grid: Grid;
+  block: Block;
+}
+
+interface GameGridProps {
+  grid: Grid;
+}
+
+interface GameSidebarProps {
+  score: number;
+}
+
+interface GridCellProps {
+  cell: Cell;
+}
+
 type CellType = "I" | "O" | "T" | "L" | "J" | "Z" | "S" | "E";
-type BlockCellType = "I" | "O" | "T" | "L" | "J" | "Z" | "S";
-type GridType = Array<Array<CellType>>;
-type BlockType = Array<MemorizePosition>;
-type DirectionType = "right" | "down" | "left" | "up";
+type CellColorMap = Record<CellType, string>;
+type Direction = "right" | "down" | "left" | "up";
+type Grid = Array<Array<CellType>>;
 
 export type {
-  CellType,
-  BlockCellType,
-  CellPosition,
-  CellProps,
-  GridType,
-  BlockType,
-  GameType,
-  DirectionType,
-  CleanInfosType,
+  Block,
+  CellColorMap,
+  CleanupInfo,
+  Direction,
+  GameContainerProps,
+  GameBlockProps,
+  GameGridProps,
+  GameSidebarProps,
+  GameState,
+  GridCellProps,
 };

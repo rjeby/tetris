@@ -1,169 +1,79 @@
-import type { BlockType } from "./types";
+import type { Block, CellColorMap, GameState } from "./types";
 
 const ROWS = 25;
 const COLS = 15;
+const CELL_SIZE = 32;
 const POINTS_FACTOR = 100;
 
-const BLOCK_I_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 3 },
-    cellType: "I",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "I",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "I",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 6 },
-    cellType: "I",
-  },
-];
+const BLOCK_I_INITIAL_STATE: Block = {
+  type: "I",
+  cells: [
+    { row: 0, column: 3 },
+    { row: 0, column: 4 },
+    { row: 0, column: 5 },
+    { row: 0, column: 6 },
+  ],
+};
 
-const BLOCK_O_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "O",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "O",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 4 },
-    cellType: "O",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 5 },
-    cellType: "O",
-  },
-];
+const BLOCK_O_INITIAL_STATE: Block = {
+  type: "O",
+  cells: [
+    { row: 0, column: 4 },
+    { row: 0, column: 5 },
+    { row: 1, column: 4 },
+    { row: 1, column: 5 },
+  ],
+};
 
-const BLOCK_T_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 3 },
-    cellType: "T",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "T",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 4 },
-    cellType: "T",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "T",
-  },
-];
+const BLOCK_T_INITIAL_STATE: Block = {
+  type: "T",
+  cells: [
+    { row: 0, column: 3 },
+    { row: 0, column: 5 },
+    { row: 1, column: 4 },
+    { row: 0, column: 4 },
+  ],
+};
 
-const BLOCK_S_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "S",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "S",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 4 },
-    cellType: "S",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 3 },
-    cellType: "S",
-  },
-];
+const BLOCK_S_INITIAL_STATE: Block = {
+  type: "S",
+  cells: [
+    { row: 0, column: 5 },
+    { row: 0, column: 4 },
+    { row: 1, column: 4 },
+    { row: 1, column: 3 },
+  ],
+};
 
-const BLOCK_Z_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 3 },
-    cellType: "Z",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "Z",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 4 },
-    cellType: "Z",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 5 },
-    cellType: "Z",
-  },
-];
+const BLOCK_Z_INITIAL_STATE: Block = {
+  type: "Z",
+  cells: [
+    { row: 0, column: 3 },
+    { row: 0, column: 4 },
+    { row: 1, column: 4 },
+    { row: 1, column: 5 },
+  ],
+};
 
-const BLOCK_J_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 5 },
-    cellType: "J",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 3 },
-    cellType: "J",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "J",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "J",
-  },
-];
+const BLOCK_J_INITIAL_STATE: Block = {
+  type: "J",
+  cells: [
+    { row: 1, column: 5 },
+    { row: 0, column: 3 },
+    { row: 0, column: 4 },
+    { row: 0, column: 5 },
+  ],
+};
 
-const BLOCK_L_INITIAL_STATE: BlockType = [
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 1, column: 3 },
-    cellType: "L",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 3 },
-    cellType: "L",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 4 },
-    cellType: "L",
-  },
-  {
-    previous: { row: -1, column: -1 },
-    current: { row: 0, column: 5 },
-    cellType: "L",
-  },
-];
+const BLOCK_L_INITIAL_STATE: Block = {
+  type: "L",
+  cells: [
+    { row: 1, column: 3 },
+    { row: 0, column: 3 },
+    { row: 0, column: 4 },
+    { row: 0, column: 5 },
+  ],
+};
 
 const BLOCKS_INITIAL_STATES = {
   I: BLOCK_I_INITIAL_STATE,
@@ -175,10 +85,35 @@ const BLOCKS_INITIAL_STATES = {
   L: BLOCK_L_INITIAL_STATE,
 };
 
+const GRID_INITIAL_STATE = Array.from({ length: ROWS }, () =>
+  new Array(COLS).fill("E"),
+);
+
+const GAME_INITIAL_STATE: GameState = {
+  grid: GRID_INITIAL_STATE,
+  block: BLOCK_I_INITIAL_STATE,
+  score: 0,
+  isGameOver: false,
+};
+
+const CELL_COLOR_MAP: CellColorMap = {
+  I: "rgb(6, 182, 212)", // cyan-400
+  O: "rgb(252, 211, 77)", // yellow-400
+  T: "rgb(139, 92, 246)", // purple-400
+  L: "rgb(251, 146, 60)", // orange-400
+  J: "rgb(59, 130, 246)", // blue-400
+  Z: "rgb(239, 68, 68)", // red-400
+  S: "rgb(34, 197, 94)", // green-400
+  E: "rgb(255, 255, 255)", // white
+};
+
 export {
   ROWS,
   COLS,
+  CELL_SIZE,
   BLOCKS_INITIAL_STATES,
   BLOCK_I_INITIAL_STATE,
   POINTS_FACTOR,
+  CELL_COLOR_MAP,
+  GAME_INITIAL_STATE,
 };
