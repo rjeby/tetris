@@ -1,7 +1,7 @@
 import type { GameBlockProps } from "../types";
 import GridCell from "./GridCell";
 
-const GameBlock = ({ block }: GameBlockProps) => {
+const GameBlock = ({ block, bounds }: GameBlockProps) => {
   const type = block.type;
   const cellPositions = block.cells;
   return (
@@ -9,6 +9,10 @@ const GameBlock = ({ block }: GameBlockProps) => {
       {cellPositions.map((position) => (
         <GridCell
           key={`${position.row}#${position.column}`}
+          hasAnimation={
+            position.row >= bounds.minCompleteRowIndex &&
+            position.row <= bounds.maxCompleteRowIndex
+          }
           cell={{ type: type, position: position }}
         />
       ))}

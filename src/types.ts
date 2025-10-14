@@ -3,6 +3,11 @@ interface Block {
   cells: Array<CellPosition>;
 }
 
+interface Bounds {
+  minCompleteRowIndex: number;
+  maxCompleteRowIndex: number;
+}
+
 interface Cell {
   type: CellType;
   position: CellPosition;
@@ -19,8 +24,8 @@ interface CleanupInfo {
 }
 
 interface Delta {
-  dr: number,
-  dc: number
+  dr: number;
+  dc: number;
 }
 
 interface GameState {
@@ -32,6 +37,7 @@ interface GameState {
 
 interface GameBlockProps {
   block: Block;
+  bounds: Bounds;
 }
 
 interface GameContainerProps {
@@ -41,6 +47,7 @@ interface GameContainerProps {
 
 interface GameGridProps {
   grid: Grid;
+  bounds: Bounds;
 }
 
 interface GameSidebarProps {
@@ -49,18 +56,18 @@ interface GameSidebarProps {
 
 interface GridCellProps {
   cell: Cell;
+  hasAnimation: boolean;
 }
-
-
 
 type CellType = "I" | "O" | "T" | "L" | "J" | "Z" | "S" | "E";
 type CellColorMap = Record<CellType, string>;
-type DeltaMap = Record<Direction, Delta>
+type DeltaMap = Record<Direction, Delta>;
 type Direction = "right" | "down" | "left" | "up";
 type Grid = Array<Array<CellType>>;
 
 export type {
   Block,
+  Bounds,
   CellColorMap,
   CleanupInfo,
   DeltaMap,
@@ -73,4 +80,3 @@ export type {
   Grid,
   GridCellProps,
 };
-
