@@ -70,6 +70,7 @@ export type {
   GameGridProps,
   GameSidebarProps,
   GameState,
+  Grid,
   GridCellProps,
 };
 

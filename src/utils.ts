@@ -1,5 +1,11 @@
-import { COLS, DELTA, ROWS } from "./constants";
-import type { Block, Direction, GameState } from "./types";
+import {
+  BLOCK_I_INITIAL_STATE,
+  COLS,
+  DELTA,
+  POINTS_FACTOR,
+  ROWS,
+} from "./constants";
+import type { Block, Direction, GameState, Grid } from "./types";
 
 // import {
 //   BLOCKS_INITIAL_STATES,
@@ -303,13 +309,30 @@ import type { Block, Direction, GameState } from "./types";
 // };
 
 // export { applyCurrentBlockToGrid, updateGame, GAME_INITIAL_STATE };
-
 const updateGameState = (game: GameState, direction: Direction) => {
+  // immutability
   const updatedBlock = moveBlock(game.block, direction);
-  return {
-    ...game,
-    block: isBlockValid(updatedBlock) ? updatedBlock : game.block,
-  };
+  const _isBlockValid = isBlockValid(updatedBlock);
+  const _isBlockOverlapping = _isBlockValid
+    ? isBlockOverlapping(game.grid, updatedBlock)
+    : false;
+  const _hasBlockReachedTheEnd = hasBlockReachedTheEnd(updatedBlock);
+
+  if (direction === "down" && (_hasBlockReachedTheEnd || _isBlockOverlapping)) {
+    const updatedGrid = applyBlockToGrid(game.grid, game.block);
+    const points = removeGridCompleteRows(updatedGrid);
+    return {
+      ...game,
+      grid: updatedGrid,
+      block: BLOCK_I_INITIAL_STATE,
+      score: game.score + POINTS_FACTOR * points,
+    };
+  }
+  if (!_isBlockValid || _isBlockOverlapping) {
+    return { ...game };
+  }
+
+  return { ...game, block: updatedBlock };
 };
 
 const moveBlock = (block: Block, direction: Direction) => {
@@ -334,6 +357,74 @@ const isBlockValid = (block: Block) => {
     }
   }
   return true;
+};
+
+const isBlockOverlapping = (grid: Grid, block: Block) => {
+  for (const position of block.cells) {
+    if (grid[position.row][position.column] !== "E") {
+      return true;
+    }
+  }
+  return false;
+};
+
+const hasBlockReachedTheEnd = (block: Block) => {
+  for (const position of block.cells) {
+    if (position.row === ROWS) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const applyBlockToGrid = (grid: Grid, block: Block) => {
+  const _grid = grid.map((rows) => rows.slice());
+  for (const position of block.cells) {
+    _grid[position.row][position.column] = block.type;
+  }
+  return _grid;
+};
+
+const getCompleteRowBounds = (grid: Grid) => {
+  let minRowIndex = ROWS;
+  let maxRowIndex = -1;
+  for (let row = 0; row < ROWS; row++) {
+    let isRowComplete = true;
+    for (let col = 0; col < COLS; col++) {
+      if (grid[row][col] === "E") {
+        isRowComplete = false;
+      }
+    }
+
+    if (isRowComplete) {
+      minRowIndex = Math.min(minRowIndex, row);
+      maxRowIndex = Math.max(maxRowIndex, row);
+    }
+  }
+  return { minRowIndex: minRowIndex, maxRowIndex: maxRowIndex };
+};
+
+const removeGridCompleteRows = (grid: Grid) => {
+  const { minRowIndex, maxRowIndex } = getCompleteRowBounds(grid);
+  const offset = maxRowIndex - minRowIndex + 1;
+  if (maxRowIndex === -1) {
+    return 0;
+  }
+
+  for (let row = maxRowIndex; row - offset >= 0; row--) {
+    for (let column = 0; column < COLS; column++) {
+      grid[row][column] = grid[row - offset][column];
+    }
+  }
+
+  for (let row = 0; row < offset; row++) {
+    for (let column = 0; column < COLS; column++) {
+      grid[row][column] = "E";
+    }
+  }
+
+  return offset;
 };
 
 export { updateGameState };

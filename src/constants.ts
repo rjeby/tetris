@@ -1,7 +1,7 @@
 import type { Block, CellColorMap, DeltaMap, GameState } from "./types";
 
 const ROWS = 25;
-const COLS = 15;
+const COLS = 16;
 const CELL_SIZE = 32;
 const POINTS_FACTOR = 100;
 
