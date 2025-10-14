@@ -1,3 +1,6 @@
+import { COLS, DELTA, ROWS } from "./constants";
+import type { Block, Direction, GameState } from "./types";
+
 // import {
 //   BLOCKS_INITIAL_STATES,
 //   BLOCK_I_INITIAL_STATE,
@@ -300,3 +303,37 @@
 // };
 
 // export { applyCurrentBlockToGrid, updateGame, GAME_INITIAL_STATE };
+
+const updateGameState = (game: GameState, direction: Direction) => {
+  const updatedBlock = moveBlock(game.block, direction);
+  return {
+    ...game,
+    block: isBlockValid(updatedBlock) ? updatedBlock : game.block,
+  };
+};
+
+const moveBlock = (block: Block, direction: Direction) => {
+  return {
+    type: block.type,
+    cells: block.cells.map((position) => ({
+      row: position.row + DELTA[direction].dr,
+      column: position.column + DELTA[direction].dc,
+    })),
+  };
+};
+
+const isBlockValid = (block: Block) => {
+  for (const position of block.cells) {
+    if (
+      position.row < 0 ||
+      position.row >= ROWS ||
+      position.column < 0 ||
+      position.column >= COLS
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
+export { updateGameState };

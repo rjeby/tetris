@@ -6,8 +6,11 @@ const GameBlock = ({ block }: GameBlockProps) => {
   const cellPositions = block.cells;
   return (
     <>
-      {cellPositions.map((cellPosition) => (
-        <GridCell cell={{ type: type, position: cellPosition }} />
+      {cellPositions.map((position) => (
+        <GridCell
+          key={`${position.row}#${position.column}`}
+          cell={{ type: type, position: position }}
+        />
       ))}
     </>
   );

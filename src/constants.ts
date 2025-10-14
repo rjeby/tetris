@@ -1,17 +1,24 @@
-import type { Block, CellColorMap, GameState } from "./types";
+import type { Block, CellColorMap, DeltaMap, GameState } from "./types";
 
 const ROWS = 25;
 const COLS = 15;
 const CELL_SIZE = 32;
 const POINTS_FACTOR = 100;
 
+const DELTA : DeltaMap = {
+  up: { dr: -1, dc: 0 },
+  right: { dr: 0, dc: 1 },
+  down: { dr: 1, dc: 0 },
+  left: { dr: 0, dc: -1 },
+};
+
 const BLOCK_I_INITIAL_STATE: Block = {
   type: "I",
   cells: [
+    { row: 0, column: 0 },
+    { row: 0, column: 1 },
+    { row: 0, column: 2 },
     { row: 0, column: 3 },
-    { row: 0, column: 4 },
-    { row: 0, column: 5 },
-    { row: 0, column: 6 },
   ],
 };
 
@@ -111,6 +118,7 @@ export {
   ROWS,
   COLS,
   CELL_SIZE,
+  DELTA,
   BLOCKS_INITIAL_STATES,
   BLOCK_I_INITIAL_STATE,
   POINTS_FACTOR,

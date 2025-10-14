@@ -18,6 +18,11 @@ interface CleanupInfo {
   handleKeyPress: (event: KeyboardEvent) => void;
 }
 
+interface Delta {
+  dr: number,
+  dc: number
+}
+
 interface GameState {
   grid: Grid;
   block: Block;
@@ -46,8 +51,11 @@ interface GridCellProps {
   cell: Cell;
 }
 
+
+
 type CellType = "I" | "O" | "T" | "L" | "J" | "Z" | "S" | "E";
 type CellColorMap = Record<CellType, string>;
+type DeltaMap = Record<Direction, Delta>
 type Direction = "right" | "down" | "left" | "up";
 type Grid = Array<Array<CellType>>;
 
@@ -55,6 +63,7 @@ export type {
   Block,
   CellColorMap,
   CleanupInfo,
+  DeltaMap,
   Direction,
   GameContainerProps,
   GameBlockProps,
@@ -63,3 +72,4 @@ export type {
   GameState,
   GridCellProps,
 };
+

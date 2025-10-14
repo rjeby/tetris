@@ -1,8 +1,10 @@
-import type { GameState } from "../types";
-import { useState } from "react";
+import type { Direction, GameState } from "../types";
+import { useEffect, useState } from "react";
 import { GAME_INITIAL_STATE } from "../constants";
 import GameSidebar from "./GameSidebar";
 import GameContainer from "./GameContainer";
+
+import { updateGameState } from "../utils";
 
 const Game = () => {
   const [game, setGame] = useState<GameState>(GAME_INITIAL_STATE);
@@ -26,12 +28,20 @@ const Game = () => {
   //   };
   // }, []);
 
-  // const handleKeyStroke = (key: string) => {
-  //   if (["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"].includes(key)) {
-  //     const direction = key.substring(5).toLowerCase() as DirectionType;
-  //     setGame((game) => updateGameState(game, direction));
-  //   }
-  // };
+  const handleKeyStroke = (key: string) => {
+    if (["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"].includes(key)) {
+      const direction = key.substring(5).toLowerCase() as Direction;
+      setGame((game) => updateGameState(game, direction));
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => handleKeyStroke(event.key);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   // const updateGameState = (game: GameType, direction: DirectionType) => {
   //   const updatedGameState = updateGame(game, direction);
