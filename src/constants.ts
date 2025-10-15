@@ -4,8 +4,9 @@ const ROWS = 25;
 const COLS = 16;
 const CELL_SIZE = 32;
 const POINTS_FACTOR = 100;
+const PERIOD = 1000;
 
-const DELTA : DeltaMap = {
+const DELTA: DeltaMap = {
   up: { dr: -1, dc: 0 },
   right: { dr: 0, dc: 1 },
   down: { dr: 1, dc: 0 },
@@ -121,6 +122,7 @@ export {
   DELTA,
   BLOCKS_INITIAL_STATES,
   BLOCK_I_INITIAL_STATE,
+  PERIOD,
   POINTS_FACTOR,
   CELL_COLOR_MAP,
   GAME_INITIAL_STATE,

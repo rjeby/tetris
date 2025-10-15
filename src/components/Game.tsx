@@ -1,32 +1,33 @@
-import type { Direction, GameState } from "../types";
-import { useEffect, useState } from "react";
-import { GAME_INITIAL_STATE } from "../constants";
+import type { CleanupInfo, Direction, GameState } from "../types";
+import { useEffect, useState, useRef } from "react";
+import { GAME_INITIAL_STATE, PERIOD } from "../constants";
 import GameSidebar from "./GameSidebar";
 import GameContainer from "./GameContainer";
 
 import { updateGameState } from "../utils";
 
+// Game Component
+
 const Game = () => {
+  const game = useGame();
+  return (
+    <>
+      <div className="flex gap-4">
+        <GameContainer grid={game.grid} block={game.block} />
+        <GameSidebar score={game.score} />
+      </div>
+    </>
+  );
+};
+
+// Custom Hook
+
+const useGame = () => {
   const [game, setGame] = useState<GameState>(GAME_INITIAL_STATE);
-  // const cleanRef = useRef<CleanInfosType>({
-  //   intervalID: -1,
-  //   handleKeyPress: (event) => event,
-  // });
-
-  // useEffect(() => {
-  //   const pointer = cleanRef.current;
-  //   const handleKeyDown = (event: KeyboardEvent) => handleKeyStroke(event.key);
-  //   cleanRef.current.intervalID = setInterval(() => {
-  //     setGame((game) => updateGameState(game, "down"));
-  //   }, 1000);
-  //   cleanRef.current.handleKeyPress = handleKeyDown;
-  //   window.addEventListener("keydown", handleKeyDown);
-
-  //   return () => {
-  //     clearInterval(pointer.intervalID);
-  //     window.removeEventListener("keydown", pointer.handleKeyPress);
-  //   };
-  // }, []);
+  const cleanupRef = useRef<CleanupInfo>({
+    intervalID: -1,
+    handleKeyPress: (event) => event,
+  });
 
   const handleKeyStroke = (key: string) => {
     if (["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"].includes(key)) {
@@ -36,30 +37,20 @@ const Game = () => {
   };
 
   useEffect(() => {
+    const cleanup = cleanupRef.current;
     const handleKeyDown = (event: KeyboardEvent) => handleKeyStroke(event.key);
     window.addEventListener("keydown", handleKeyDown);
+    cleanup.intervalID = setInterval(() => {
+      setGame((game) => updateGameState(game, "down"));
+    }, PERIOD);
+    cleanup.handleKeyPress = handleKeyDown;
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      clearInterval(cleanup.intervalID);
     };
   }, []);
 
-  // const updateGameState = (game: GameType, direction: DirectionType) => {
-  //   const updatedGameState = updateGame(game, direction);
-  //   if (updatedGameState.isGameOver) {
-  //     clearInterval(cleanRef.current.intervalID);
-  //     window.removeEventListener("keydown", cleanRef.current.handleKeyPress);
-  //   }
-  //   return updatedGameState;
-  // };
-
-  return (
-    <>
-      <div className="flex gap-4">
-        <GameContainer grid={game.grid} block={game.block} />
-        <GameSidebar score={game.score} />
-      </div>
-    </>
-  );
+  return game;
 };
 
 export default Game;
