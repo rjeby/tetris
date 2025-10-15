@@ -427,30 +427,4 @@ const removeGridCompleteRows = (grid: Grid) => {
   return offset;
 };
 
-const getPotentialCompleteRowBounds = (grid: Grid, block: Block) => {
-  let minRowIndex = ROWS;
-  let maxRowIndex = -1;
-  const set = new Set();
-  for (const position of block.cells) {
-    set.add(`${position.row}#${position.column}`);
-  }
-  for (let row = 0; row < ROWS; row++) {
-    let isRowComplete = true;
-    for (let col = 0; col < COLS; col++) {
-      if (grid[row][col] !== "E") {
-        continue;
-      }
-      if (!set.has(`${row}#${col}`)) {
-        isRowComplete = false;
-      }
-    }
-
-    if (isRowComplete) {
-      minRowIndex = Math.min(minRowIndex, row);
-      maxRowIndex = Math.max(maxRowIndex, row);
-    }
-  }
-  return { minCompleteRowIndex: minRowIndex, maxCompleteRowIndex: maxRowIndex };
-};
-
-export { getPotentialCompleteRowBounds, updateGameState };
+export { updateGameState };

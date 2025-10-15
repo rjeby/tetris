@@ -3,11 +3,6 @@ interface Block {
   cells: Array<CellPosition>;
 }
 
-interface Bounds {
-  minCompleteRowIndex: number;
-  maxCompleteRowIndex: number;
-}
-
 interface Cell {
   type: CellType;
   position: CellPosition;
@@ -37,7 +32,6 @@ interface GameState {
 
 interface GameBlockProps {
   block: Block;
-  bounds: Bounds;
 }
 
 interface GameContainerProps {
@@ -47,7 +41,6 @@ interface GameContainerProps {
 
 interface GameGridProps {
   grid: Grid;
-  bounds: Bounds;
 }
 
 interface GameSidebarProps {
@@ -56,7 +49,6 @@ interface GameSidebarProps {
 
 interface GridCellProps {
   cell: Cell;
-  hasAnimation: boolean;
 }
 
 type CellType = "I" | "O" | "T" | "L" | "J" | "Z" | "S" | "E";
@@ -67,7 +59,6 @@ type Grid = Array<Array<CellType>>;
 
 export type {
   Block,
-  Bounds,
   CellColorMap,
   CleanupInfo,
   DeltaMap,
