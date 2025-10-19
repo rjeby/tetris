@@ -24,11 +24,12 @@ const updateGameState = (game: GameState, direction: Direction) => {
     const updatedGrid = applyBlockToGrid(game.grid, game.block);
     const randomBlock = generateRandomBlockInitialState();
     const points = removeGridCompleteRows(updatedGrid);
+    const isGameOver = isBlockOverlapping(updatedGrid, randomBlock);
     return {
-      ...game,
       grid: updatedGrid,
       block: randomBlock,
       score: game.score + POINTS_FACTOR * points,
+      isGameOver: isGameOver,
     };
   }
   if (!_isBlockValid || _isBlockOverlapping) {

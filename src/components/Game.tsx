@@ -5,17 +5,26 @@ import GameSidebar from "./GameSidebar";
 import GameContainer from "./GameContainer";
 
 import { updateGameState } from "../utils";
+import GameOver from "./GameOver";
 
 // Game Component
 
 const Game = () => {
-  const game = useGame();
+  const { game: game, setGame: setGame } = useGame();
+  const handlePlayAgain = () => {
+    setGame(() => ({ ...GAME_INITIAL_STATE, isGameOver: false }));
+  };
+
   return (
     <>
-      <div className="flex gap-4">
-        <GameContainer grid={game.grid} block={game.block} />
-        <GameSidebar score={game.score} />
-      </div>
+      {game.isGameOver ? (
+        <GameOver onPlayAgain={handlePlayAgain} />
+      ) : (
+        <div className="flex gap-4">
+          <GameContainer grid={game.grid} block={game.block} />
+          <GameSidebar score={game.score} />
+        </div>
+      )}
     </>
   );
 };
@@ -50,7 +59,7 @@ const useGame = () => {
     };
   }, []);
 
-  return game;
+  return { game: game, setGame: setGame };
 };
 
 export default Game;

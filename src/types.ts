@@ -43,6 +43,10 @@ interface GameGridProps {
   grid: Grid;
 }
 
+interface GameOverProps {
+  onPlayAgain: () => void;
+}
+
 interface GameSidebarProps {
   score: number;
 }
@@ -68,6 +72,7 @@ export type {
   GameContainerProps,
   GameBlockProps,
   GameGridProps,
+  GameOverProps,
   GameSidebarProps,
   GameState,
   Grid,
