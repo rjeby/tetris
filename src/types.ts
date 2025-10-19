@@ -56,6 +56,7 @@ type CellColorMap = Record<CellType, string>;
 type DeltaMap = Record<Direction, Delta>;
 type Direction = "right" | "down" | "left" | "up";
 type Grid = Array<Array<CellType>>;
+type RotationMatrix = Array<Array<Delta>>;
 
 export type {
   Block,
@@ -70,4 +71,5 @@ export type {
   GameState,
   Grid,
   GridCellProps,
+  RotationMatrix,
 };

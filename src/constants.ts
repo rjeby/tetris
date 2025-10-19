@@ -1,10 +1,16 @@
-import type { Block, CellColorMap, DeltaMap, GameState } from "./types";
+import type {
+  Block,
+  CellColorMap,
+  DeltaMap,
+  GameState,
+  RotationMatrix,
+} from "./types";
 
 const ROWS = 25;
 const COLS = 16;
 const CELL_SIZE = 32;
 const POINTS_FACTOR = 100;
-const PERIOD = 1000;
+const PERIOD = 100000;
 
 const DELTA: DeltaMap = {
   up: { dr: -1, dc: 0 },
@@ -16,10 +22,9 @@ const DELTA: DeltaMap = {
 const BLOCK_I_INITIAL_STATE: Block = {
   type: "I",
   cells: [
-    { row: 0, column: 0 },
     { row: 0, column: 1 },
     { row: 0, column: 2 },
-    { row: 0, column: 3 },
+    { row: 0, column: 0 },
   ],
 };
 
@@ -36,29 +41,29 @@ const BLOCK_O_INITIAL_STATE: Block = {
 const BLOCK_T_INITIAL_STATE: Block = {
   type: "T",
   cells: [
+    { row: 0, column: 4 },
     { row: 0, column: 3 },
     { row: 0, column: 5 },
     { row: 1, column: 4 },
-    { row: 0, column: 4 },
   ],
 };
 
 const BLOCK_S_INITIAL_STATE: Block = {
   type: "S",
   cells: [
-    { row: 0, column: 5 },
     { row: 0, column: 4 },
-    { row: 1, column: 4 },
     { row: 1, column: 3 },
+    { row: 0, column: 5 },
+    { row: 1, column: 4 },
   ],
 };
 
 const BLOCK_Z_INITIAL_STATE: Block = {
   type: "Z",
   cells: [
-    { row: 0, column: 3 },
     { row: 0, column: 4 },
     { row: 1, column: 4 },
+    { row: 0, column: 3 },
     { row: 1, column: 5 },
   ],
 };
@@ -66,9 +71,9 @@ const BLOCK_Z_INITIAL_STATE: Block = {
 const BLOCK_J_INITIAL_STATE: Block = {
   type: "J",
   cells: [
+    { row: 0, column: 4 },
     { row: 1, column: 5 },
     { row: 0, column: 3 },
-    { row: 0, column: 4 },
     { row: 0, column: 5 },
   ],
 };
@@ -76,9 +81,9 @@ const BLOCK_J_INITIAL_STATE: Block = {
 const BLOCK_L_INITIAL_STATE: Block = {
   type: "L",
   cells: [
+    { row: 0, column: 4 },
     { row: 1, column: 3 },
     { row: 0, column: 3 },
-    { row: 0, column: 4 },
     { row: 0, column: 5 },
   ],
 };
@@ -115,6 +120,24 @@ const CELL_COLOR_MAP: CellColorMap = {
   E: "rgb(255, 255, 255)", // white
 };
 
+const ROTATION_MATRIX: RotationMatrix = [
+  [
+    { dr: 0, dc: 2 },
+    { dr: 1, dc: 1 },
+    { dr: 2, dc: 0 },
+  ],
+  [
+    { dr: -1, dc: 1 },
+    { dr: 0, dc: 0 },
+    { dr: 1, dc: -1 },
+  ],
+  [
+    { dr: -2, dc: 0 },
+    { dr: -1, dc: -1 },
+    { dr: 0, dc: -2 },
+  ],
+];
+
 export {
   ROWS,
   COLS,
@@ -126,4 +149,5 @@ export {
   POINTS_FACTOR,
   CELL_COLOR_MAP,
   GAME_INITIAL_STATE,
+  ROTATION_MATRIX,
 };
