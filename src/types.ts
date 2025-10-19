@@ -61,6 +61,7 @@ type RotationMatrix = Array<Array<Delta>>;
 export type {
   Block,
   CellColorMap,
+  CellType,
   CleanupInfo,
   DeltaMap,
   Direction,

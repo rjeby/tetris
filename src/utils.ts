@@ -1,12 +1,12 @@
 import {
-  BLOCK_I_INITIAL_STATE,
+  BLOCKS_INITIAL_STATES,
   COLS,
   DELTA,
   POINTS_FACTOR,
   ROTATION_MATRIX,
   ROWS,
 } from "./constants";
-import type { Block, Direction, GameState, Grid } from "./types";
+import type { Block, CellType, Direction, GameState, Grid } from "./types";
 
 const updateGameState = (game: GameState, direction: Direction) => {
   // immutability
@@ -22,11 +22,12 @@ const updateGameState = (game: GameState, direction: Direction) => {
 
   if (direction === "down" && (_hasBlockReachedTheEnd || _isBlockOverlapping)) {
     const updatedGrid = applyBlockToGrid(game.grid, game.block);
+    const randomBlock = generateRandomBlockInitialState();
     const points = removeGridCompleteRows(updatedGrid);
     return {
       ...game,
       grid: updatedGrid,
-      block: BLOCK_I_INITIAL_STATE,
+      block: randomBlock,
       score: game.score + POINTS_FACTOR * points,
     };
   }
@@ -153,6 +154,13 @@ const removeGridCompleteRows = (grid: Grid) => {
   }
 
   return offset;
+};
+
+const generateRandomBlockInitialState = () => {
+  const types = Object.keys(BLOCKS_INITIAL_STATES);
+  const randomIndex = Math.floor(Math.random() * types.length);
+  const randomType = types[randomIndex] as Exclude<CellType, "E">;
+  return BLOCKS_INITIAL_STATES[randomType];
 };
 
 export { updateGameState };

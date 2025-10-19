@@ -7,10 +7,10 @@ import type {
 } from "./types";
 
 const ROWS = 25;
-const COLS = 16;
+const COLS = 15;
 const CELL_SIZE = 32;
 const POINTS_FACTOR = 100;
-const PERIOD = 100000;
+const PERIOD = 1000;
 
 const DELTA: DeltaMap = {
   up: { dr: -1, dc: 0 },
@@ -22,69 +22,69 @@ const DELTA: DeltaMap = {
 const BLOCK_I_INITIAL_STATE: Block = {
   type: "I",
   cells: [
-    { row: 0, column: 1 },
-    { row: 0, column: 2 },
-    { row: 0, column: 0 },
+    { row: 0, column: 7 },
+    { row: 0, column: 8 },
+    { row: 0, column: 6 },
   ],
 };
 
 const BLOCK_O_INITIAL_STATE: Block = {
   type: "O",
   cells: [
-    { row: 0, column: 4 },
-    { row: 0, column: 5 },
-    { row: 1, column: 4 },
-    { row: 1, column: 5 },
+    { row: 0, column: 6 },
+    { row: 0, column: 7 },
+    { row: 1, column: 6 },
+    { row: 1, column: 7 },
   ],
 };
 
 const BLOCK_T_INITIAL_STATE: Block = {
   type: "T",
   cells: [
-    { row: 0, column: 4 },
-    { row: 0, column: 3 },
-    { row: 0, column: 5 },
-    { row: 1, column: 4 },
+    { row: 0, column: 7 },
+    { row: 0, column: 6 },
+    { row: 0, column: 8 },
+    { row: 1, column: 7 },
   ],
 };
 
 const BLOCK_S_INITIAL_STATE: Block = {
   type: "S",
   cells: [
-    { row: 0, column: 4 },
-    { row: 1, column: 3 },
-    { row: 0, column: 5 },
-    { row: 1, column: 4 },
+    { row: 0, column: 7 },
+    { row: 1, column: 6 },
+    { row: 0, column: 8 },
+    { row: 1, column: 7 },
   ],
 };
 
 const BLOCK_Z_INITIAL_STATE: Block = {
   type: "Z",
   cells: [
-    { row: 0, column: 4 },
-    { row: 1, column: 4 },
-    { row: 0, column: 3 },
-    { row: 1, column: 5 },
+    { row: 0, column: 7 },
+    { row: 1, column: 7 },
+    { row: 0, column: 6 },
+    { row: 1, column: 8 },
   ],
 };
 
 const BLOCK_J_INITIAL_STATE: Block = {
   type: "J",
   cells: [
-    { row: 0, column: 4 },
-    { row: 1, column: 5 },
-    { row: 0, column: 3 },
-    { row: 0, column: 5 },
+    { row: 0, column: 7 },
+    { row: 1, column: 8 },
+    { row: 0, column: 6 },
+    { row: 0, column: 8 },
   ],
 };
 
 const BLOCK_L_INITIAL_STATE: Block = {
   type: "L",
   cells: [
-    { row: 0, column: 4 },
-    { row: 1, column: 3 },
-    { row: 0, column: 3 },
-    { row: 0, column: 5 },
+    { row: 0, column: 7 },
+    { row: 1, column: 6 },
+    { row: 0, column: 6 },
+    { row: 0, column: 8 },
   ],
 };
 
@@ -144,7 +144,6 @@ export {
   CELL_SIZE,
   DELTA,
   BLOCKS_INITIAL_STATES,
-  BLOCK_I_INITIAL_STATE,
   PERIOD,
   POINTS_FACTOR,
   CELL_COLOR_MAP,
