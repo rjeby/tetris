@@ -106,6 +106,12 @@ const GAME_INITIAL_STATE: GameState = {
   grid: GRID_INITIAL_STATE,
   block: BLOCK_I_INITIAL_STATE,
   score: 0,
+  bounds: {
+    minCompleteRowIndex: Infinity,
+    maxCompleteRowIndex: -Infinity,
+  },
+  hasGameStarted: false,
+  isPending: false,
   isGameOver: false,
 };
 

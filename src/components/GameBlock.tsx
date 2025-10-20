@@ -10,6 +10,7 @@ const GameBlock = ({ block }: GameBlockProps) => {
         <GridCell
           key={`${position.row}#${position.column}`}
           cell={{ type: type, position: position }}
+          hasAnimation={false}
         />
       ))}
     </>

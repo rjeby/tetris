@@ -3,9 +3,9 @@ import { useEffect, useState, useRef } from "react";
 import { GAME_INITIAL_STATE, PERIOD } from "../constants";
 import GameSidebar from "./GameSidebar";
 import GameContainer from "./GameContainer";
-
-import { updateGameState } from "../utils";
+import { updatePendingGameState, updateRunningGameState } from "../utils";
 import GameOver from "./GameOver";
+import GameMenu from "./GameMenu";
 
 // Game Component
 
@@ -15,15 +15,27 @@ const Game = () => {
     setGame(() => ({ ...GAME_INITIAL_STATE, isGameOver: false }));
   };
 
+  const handlePlayGame = () => {
+    setGame(() => ({ ...GAME_INITIAL_STATE, hasGameStarted: true }));
+  };
+
   return (
     <>
-      {game.isGameOver ? (
+      {!game.hasGameStarted && <GameMenu onPlayGame={handlePlayGame} />}
+      {game.hasGameStarted && game.isGameOver && (
         <GameOver onPlayAgain={handlePlayAgain} />
-      ) : (
-        <div className="flex gap-4">
-          <GameContainer grid={game.grid} block={game.block} />
-          <GameSidebar score={game.score} />
-        </div>
+      )}
+      {game.hasGameStarted && !game.isGameOver && (
+        <>
+          <div className="flex gap-4">
+            <GameContainer
+              grid={game.grid}
+              block={game.block}
+              bounds={game.bounds}
+            />
+            <GameSidebar score={game.score} />
+          </div>
+        </>
       )}
     </>
   );
@@ -41,7 +53,7 @@ const useGame = () => {
   const handleKeyStroke = (key: string) => {
     if (["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"].includes(key)) {
       const direction = key.substring(5).toLowerCase() as Direction;
-      setGame((game) => updateGameState(game, direction));
+      setGame((game) => updateRunningGameState(game, direction));
     }
   };
 
@@ -50,7 +62,7 @@ const useGame = () => {
     const handleKeyDown = (event: KeyboardEvent) => handleKeyStroke(event.key);
     window.addEventListener("keydown", handleKeyDown);
     cleanup.intervalID = setInterval(() => {
-      setGame((game) => updateGameState(game, "down"));
+      setGame((game) => updateRunningGameState(game, "down"));
     }, PERIOD);
     cleanup.handleKeyPress = handleKeyDown;
     return () => {
@@ -58,6 +70,15 @@ const useGame = () => {
       clearInterval(cleanup.intervalID);
     };
   }, []);
+
+  useEffect(() => {
+    if (!game.isPending) {
+      return;
+    }
+    setTimeout(() => {
+      setGame((game) => updatePendingGameState(game));
+    }, 3 * PERIOD);
+  }, [game]);
 
   return { game: game, setGame: setGame };
 };

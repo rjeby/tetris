@@ -1,12 +1,12 @@
 import type { GridCellProps } from "../types";
 import { CELL_COLOR_MAP, CELL_SIZE } from "../constants";
 
-const GridCell = ({ cell }: GridCellProps) => {
+const GridCell = ({ cell, hasAnimation }: GridCellProps) => {
   const type = cell.type;
   const position = cell.position;
   return (
     <div
-      className={`border-black} absolute h-8 w-8 border-10`}
+      className={`absolute h-8 w-8 ${hasAnimation ? "animate-ping" : ""} `}
       style={{
         backgroundColor: CELL_COLOR_MAP[type],
         border: type === "E" ? "1px solid black" : "none",

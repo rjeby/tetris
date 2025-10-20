@@ -6,9 +6,19 @@ import {
   ROTATION_MATRIX,
   ROWS,
 } from "./constants";
-import type { Block, CellType, Direction, GameState, Grid } from "./types";
+import type {
+  Block,
+  Bounds,
+  CellType,
+  Direction,
+  GameState,
+  Grid,
+} from "./types";
 
-const updateGameState = (game: GameState, direction: Direction) => {
+const updateRunningGameState = (game: GameState, direction: Direction) => {
+  if (game.isPending) {
+    return game;
+  }
   // immutability
   const updatedBlock =
     direction === "up"
@@ -22,21 +32,50 @@ const updateGameState = (game: GameState, direction: Direction) => {
 
   if (direction === "down" && (_hasBlockReachedTheEnd || _isBlockOverlapping)) {
     const updatedGrid = applyBlockToGrid(game.grid, game.block);
-    const randomBlock = generateRandomBlockInitialState();
-    const points = removeGridCompleteRows(updatedGrid);
-    const isGameOver = isBlockOverlapping(updatedGrid, randomBlock);
+    //const points = removeGridCompleteRows(updatedGrid);
+    const bounds = getCompleteRowBounds(updatedGrid);
+    const _hasCompleteRow = hasCompleteRow(bounds);
+    const randomBlock = _hasCompleteRow
+      ? { type: "X" as CellType, cells: [] }
+      : generateRandomBlockInitialState();
+    const isGameOver = !_hasCompleteRow
+      ? isBlockOverlapping(updatedGrid, randomBlock as Block)
+      : false;
     return {
       grid: updatedGrid,
       block: randomBlock,
-      score: game.score + POINTS_FACTOR * points,
+      score: game.score,
+      bounds: bounds,
+      hasGameStarted: true,
+      isPending: _hasCompleteRow,
       isGameOver: isGameOver,
     };
   }
   if (!_isBlockValid || _isBlockOverlapping) {
-    return { ...game };
+    return game;
   }
 
   return { ...game, block: updatedBlock };
+};
+
+const updatePendingGameState = (game: GameState) => {
+  if (!game.isPending) {
+    return game;
+  }
+  const updatedGrid = [...game.grid.map((row) => row.slice())];
+  const points = removeGridCompleteRows(updatedGrid);
+  return {
+    grid: updatedGrid,
+    block: generateRandomBlockInitialState(),
+    score: game.score + POINTS_FACTOR * points,
+    hasGameStarted: true,
+    bounds: {
+      minCompleteRowIndex: Infinity,
+      maxCompleteRowIndex: -Infinity,
+    },
+    isPending: false,
+    isGameOver: false,
+  };
 };
 
 const moveBlock = (block: Block, direction: Direction) => {
@@ -117,8 +156,8 @@ const applyBlockToGrid = (grid: Grid, block: Block) => {
 };
 
 const getCompleteRowBounds = (grid: Grid) => {
-  let minRowIndex = ROWS;
-  let maxRowIndex = -1;
+  let minRowIndex = Infinity;
+  let maxRowIndex = -Infinity;
   for (let row = 0; row < ROWS; row++) {
     let isRowComplete = true;
     for (let col = 0; col < COLS; col++) {
@@ -132,17 +171,25 @@ const getCompleteRowBounds = (grid: Grid) => {
       maxRowIndex = Math.max(maxRowIndex, row);
     }
   }
-  return { minRowIndex: minRowIndex, maxRowIndex: maxRowIndex };
+  return { minCompleteRowIndex: minRowIndex, maxCompleteRowIndex: maxRowIndex };
+};
+
+const hasCompleteRow = (bounds: Bounds) => {
+  return (
+    bounds.minCompleteRowIndex !== Infinity &&
+    bounds.maxCompleteRowIndex !== -Infinity
+  );
 };
 
 const removeGridCompleteRows = (grid: Grid) => {
-  const { minRowIndex, maxRowIndex } = getCompleteRowBounds(grid);
-  const offset = maxRowIndex - minRowIndex + 1;
-  if (maxRowIndex === -1) {
+  const { minCompleteRowIndex, maxCompleteRowIndex } =
+    getCompleteRowBounds(grid);
+  const offset = maxCompleteRowIndex - minCompleteRowIndex + 1;
+  if (maxCompleteRowIndex === -Infinity) {
     return 0;
   }
 
-  for (let row = maxRowIndex; row - offset >= 0; row--) {
+  for (let row = maxCompleteRowIndex; row - offset >= 0; row--) {
     for (let column = 0; column < COLS; column++) {
       grid[row][column] = grid[row - offset][column];
     }
@@ -164,4 +211,4 @@ const generateRandomBlockInitialState = () => {
   return BLOCKS_INITIAL_STATES[randomType];
 };
 
-export { updateGameState };
+export { updatePendingGameState, updateRunningGameState };
