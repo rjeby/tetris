@@ -29,7 +29,7 @@ const GameMenu = ({ onPlayGame }: GameMenuProps) => {
       </div>
       <button
         type="button"
-        className="rounded-2xl bg-gray-200 px-8 py-2 text-4xl hover:scale-125"
+        className="animate-pulse rounded-2xl bg-gray-200 px-8 py-2 text-4xl hover:scale-125"
         onClick={onPlayGame}
       >
         Play
