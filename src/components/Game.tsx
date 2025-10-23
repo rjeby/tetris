@@ -10,14 +10,11 @@ import GameMenu from "./GameMenu";
 // Game Component
 
 const Game = () => {
-  const { game: game, setGame: setGame } = useGame();
-  const handlePlayAgain = () => {
-    setGame(() => ({ ...GAME_INITIAL_STATE, isGameOver: false }));
-  };
-
-  const handlePlayGame = () => {
-    setGame(() => ({ ...GAME_INITIAL_STATE, hasGameStarted: true }));
-  };
+  const {
+    game: game,
+    handlePlayGame: handlePlayGame,
+    handlePlayAgain: handlePlayAgain,
+  } = useGame();
 
   return (
     <>
@@ -57,21 +54,27 @@ const useGame = () => {
     }
   };
 
-  useEffect(() => {
+  const handlePlayAgain = () => {
+    setGame(() => ({ ...GAME_INITIAL_STATE, isGameOver: false }));
+  };
+
+  const handlePlayGame = () => {
     const cleanup = cleanupRef.current;
     const handleKeyDown = (event: KeyboardEvent) => handleKeyStroke(event.key);
+    setGame(() => ({ ...GAME_INITIAL_STATE, hasGameStarted: true }));
     window.addEventListener("keydown", handleKeyDown);
     cleanup.intervalID = setInterval(() => {
       setGame((game) => updateRunningGameState(game, "down"));
     }, PERIOD);
     cleanup.handleKeyPress = handleKeyDown;
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      clearInterval(cleanup.intervalID);
-    };
-  }, []);
+  };
 
   useEffect(() => {
+    if (game.isGameOver) {
+      window.removeEventListener("keydown", cleanupRef.current.handleKeyPress);
+      clearInterval(cleanupRef.current.intervalID);
+    }
+
     if (!game.isPending) {
       return;
     }
@@ -80,7 +83,11 @@ const useGame = () => {
     }, PERIOD);
   }, [game]);
 
-  return { game: game, setGame: setGame };
+  return {
+    game: game,
+    handlePlayAgain: handlePlayAgain,
+    handlePlayGame: handlePlayGame,
+  };
 };
 
 export default Game;
