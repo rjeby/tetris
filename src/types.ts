@@ -3,10 +3,6 @@ interface Block {
   cells: Array<CellPosition>;
 }
 
-interface Bounds {
-  minCompleteRowIndex: number;
-  maxCompleteRowIndex: number;
-}
 
 interface Cell {
   type: CellType;
@@ -32,7 +28,7 @@ interface GameState {
   grid: Grid;
   block: Block;
   score: number;
-  bounds: Bounds;
+  completeRowPositions: completeRowPositions;
   hasGameStarted: boolean;
   isPending: boolean;
   isGameOver: boolean;
@@ -49,12 +45,12 @@ interface GameBlockProps {
 interface GameContainerProps {
   grid: Grid;
   block: Block;
-  bounds: Bounds;
+  completeRowPositions: completeRowPositions;
 }
 
 interface GameGridProps {
   grid: Grid;
-  bounds: Bounds;
+  completeRowPositions: completeRowPositions;
 }
 
 interface GameMenuProps {
@@ -78,16 +74,17 @@ type CellType = "I" | "O" | "T" | "L" | "J" | "Z" | "S" | "E";
 type CellColorMap = Record<CellType, string>;
 type DeltaMap = Record<Direction, Delta>;
 type Direction = "right" | "down" | "left" | "up";
+type completeRowPositions = Set<number>;
 type Grid = Array<Array<CellType>>;
 type RotationMatrix = Array<Array<Delta>>;
 
 export type {
   Block,
   BlockCellProps,
-  Bounds,
   CellColorMap,
   CellType,
   CleanupInfo,
+  completeRowPositions,
   DeltaMap,
   Direction,
   GameContainerProps,

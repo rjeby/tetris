@@ -4,7 +4,6 @@ import { CELL_COLOR_MAP, CELL_SIZE } from "../constants";
 const BlockCell = ({ cell }: BlockCellProps) => {
   const type = cell.type;
   const position = cell.position;
-  console.log(position)
   return (
     <div
       className={`absolute h-8 w-8`}

@@ -1,7 +1,7 @@
 import type { GameGridProps } from "../types";
 import GridCell from "./GridCell";
 
-const GameGrid = ({ grid, bounds }: GameGridProps) => {
+const GameGrid = ({ grid, completeRowPositions }: GameGridProps) => {
   return (
     <>
       {grid.map((row, rowIndex) =>
@@ -12,10 +12,7 @@ const GameGrid = ({ grid, bounds }: GameGridProps) => {
               type: cell,
               position: { row: rowIndex, column: columnIndex },
             }}
-            hasAnimation={
-              rowIndex >= bounds.minCompleteRowIndex &&
-              rowIndex <= bounds.maxCompleteRowIndex
-            }
+            hasAnimation={completeRowPositions.has(rowIndex)}
           />
         )),
       )}

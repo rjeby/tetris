@@ -28,7 +28,7 @@ const Game = () => {
             <GameContainer
               grid={game.grid}
               block={game.block}
-              bounds={game.bounds}
+              completeRowPositions={game.completeRowPositions}
             />
             <GameSidebar score={game.score} />
           </div>

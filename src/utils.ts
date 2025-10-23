@@ -8,8 +8,8 @@ import {
 } from "./constants";
 import type {
   Block,
-  Bounds,
   CellType,
+  completeRowPositions,
   Direction,
   GameState,
   Grid,
@@ -32,9 +32,8 @@ const updateRunningGameState = (game: GameState, direction: Direction) => {
 
   if (direction === "down" && (_hasBlockReachedTheEnd || _isBlockOverlapping)) {
     const updatedGrid = applyBlockToGrid(game.grid, game.block);
-    //const points = removeGridCompleteRows(updatedGrid);
-    const bounds = getCompleteRowBounds(updatedGrid);
-    const _hasCompleteRow = hasCompleteRow(bounds);
+    const completeRowPositions = getCompleteRowPositions(updatedGrid);
+    const _hasCompleteRow = hasCompleteRow(completeRowPositions);
     const randomBlock = _hasCompleteRow
       ? { type: "X" as CellType, cells: [] }
       : generateRandomBlockInitialState();
@@ -45,7 +44,7 @@ const updateRunningGameState = (game: GameState, direction: Direction) => {
       grid: updatedGrid,
       block: randomBlock,
       score: game.score,
-      bounds: bounds,
+      completeRowPositions: completeRowPositions,
       hasGameStarted: true,
       isPending: _hasCompleteRow,
       isGameOver: isGameOver,
@@ -62,17 +61,17 @@ const updatePendingGameState = (game: GameState) => {
   if (!game.isPending) {
     return game;
   }
-  const updatedGrid = [...game.grid.map((row) => row.slice())];
-  const points = removeGridCompleteRows(updatedGrid);
+  const updatedGrid = removeGridCompleteRows(
+    game.grid,
+    game.completeRowPositions,
+  );
+  const points = game.completeRowPositions.size;
   return {
     grid: updatedGrid,
     block: generateRandomBlockInitialState(),
     score: game.score + POINTS_FACTOR * points,
     hasGameStarted: true,
-    bounds: {
-      minCompleteRowIndex: Infinity,
-      maxCompleteRowIndex: -Infinity,
-    },
+    completeRowPositions: new Set() as Set<number>,
     isPending: false,
     isGameOver: false,
   };
@@ -155,9 +154,8 @@ const applyBlockToGrid = (grid: Grid, block: Block) => {
   return _grid;
 };
 
-const getCompleteRowBounds = (grid: Grid) => {
-  let minRowIndex = Infinity;
-  let maxRowIndex = -Infinity;
+const getCompleteRowPositions = (grid: Grid) => {
+  const completeRowPositions: completeRowPositions = new Set();
   for (let row = 0; row < ROWS; row++) {
     let isRowComplete = true;
     for (let col = 0; col < COLS; col++) {
@@ -167,41 +165,38 @@ const getCompleteRowBounds = (grid: Grid) => {
     }
 
     if (isRowComplete) {
-      minRowIndex = Math.min(minRowIndex, row);
-      maxRowIndex = Math.max(maxRowIndex, row);
+      completeRowPositions.add(row);
     }
   }
-  return { minCompleteRowIndex: minRowIndex, maxCompleteRowIndex: maxRowIndex };
+  return completeRowPositions;
 };
 
-const hasCompleteRow = (bounds: Bounds) => {
-  return (
-    bounds.minCompleteRowIndex !== Infinity &&
-    bounds.maxCompleteRowIndex !== -Infinity
+const hasCompleteRow = (completeRowPositions: completeRowPositions) => {
+  return completeRowPositions.size !== 0;
+};
+
+const removeGridCompleteRows = (
+  grid: Grid,
+  completeRowPositions: completeRowPositions,
+) => {
+  const updatedGrid = Array.from({ length: ROWS }, () =>
+    new Array(COLS).fill("E"),
   );
-};
-
-const removeGridCompleteRows = (grid: Grid) => {
-  const { minCompleteRowIndex, maxCompleteRowIndex } =
-    getCompleteRowBounds(grid);
-  const offset = maxCompleteRowIndex - minCompleteRowIndex + 1;
-  if (maxCompleteRowIndex === -Infinity) {
-    return 0;
-  }
-
-  for (let row = maxCompleteRowIndex; row - offset >= 0; row--) {
-    for (let column = 0; column < COLS; column++) {
-      grid[row][column] = grid[row - offset][column];
+  let copyIndex = ROWS - 1;
+  let insertIndex = ROWS - 1;
+  while (copyIndex >= 0) {
+    if (completeRowPositions.has(copyIndex)) {
+      copyIndex--;
+      continue;
     }
-  }
-
-  for (let row = 0; row < offset; row++) {
     for (let column = 0; column < COLS; column++) {
-      grid[row][column] = "E";
+      updatedGrid[insertIndex][column] = grid[copyIndex][column];
     }
+    copyIndex--;
+    insertIndex--;
   }
 
-  return offset;
+  return updatedGrid;
 };
 
 const generateRandomBlockInitialState = () => {
