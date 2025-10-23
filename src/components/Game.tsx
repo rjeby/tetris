@@ -77,7 +77,7 @@ const useGame = () => {
     }
     setTimeout(() => {
       setGame((game) => updatePendingGameState(game));
-    }, 3 * PERIOD);
+    }, PERIOD);
   }, [game]);
 
   return { game: game, setGame: setGame };

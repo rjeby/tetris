@@ -1,17 +1,14 @@
 import type { GridCellProps } from "../types";
-import { CELL_COLOR_MAP, CELL_SIZE } from "../constants";
+import { CELL_COLOR_MAP } from "../constants";
 
 const GridCell = ({ cell, hasAnimation }: GridCellProps) => {
   const type = cell.type;
-  const position = cell.position;
   return (
     <div
-      className={`absolute h-8 w-8 ${hasAnimation ? "animate-ping" : ""} `}
+      className={`h-8 w-8 ${hasAnimation ? "animate-ping" : ""} `}
       style={{
         backgroundColor: CELL_COLOR_MAP[type],
-        border: type === "E" ? "1px solid black" : "none",
-        left: `${position.column * CELL_SIZE}px`,
-        top: `${position.row * CELL_SIZE}px`,
+        border: type === "E" ? "1px solid gray" : "none",
       }}
     ></div>
   );

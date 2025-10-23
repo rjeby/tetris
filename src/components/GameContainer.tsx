@@ -1,13 +1,17 @@
-import { CELL_SIZE, COLS, ROWS } from "../constants";
+import { COLS, ROWS } from "../constants";
 import GameGrid from "./GameGrid";
 import GameBlock from "./GameBlock";
 import type { GameContainerProps } from "../types";
 
 const GameContainer = ({ grid, block, bounds }: GameContainerProps) => {
-  const width = CELL_SIZE * COLS;
-  const height = CELL_SIZE * ROWS;
   return (
-    <div className="relative" style={{ width: width, height: height }}>
+    <div
+      className="relative grid rounded-md border-4 border-gray-500"
+      style={{
+        gridTemplateRows: `repeat(${ROWS}, 1fr)`,
+        gridTemplateColumns: `repeat(${COLS}, 1fr)`,
+      }}
+    >
       <GameGrid grid={grid} bounds={bounds} />
       <GameBlock block={block} />
     </div>

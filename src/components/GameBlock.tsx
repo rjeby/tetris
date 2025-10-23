@@ -1,5 +1,5 @@
 import type { GameBlockProps } from "../types";
-import GridCell from "./GridCell";
+import BlockCell from "./BlockCell";
 
 const GameBlock = ({ block }: GameBlockProps) => {
   const type = block.type;
@@ -7,10 +7,9 @@ const GameBlock = ({ block }: GameBlockProps) => {
   return (
     <>
       {cellPositions.map((position) => (
-        <GridCell
+        <BlockCell
           key={`${position.row}#${position.column}`}
           cell={{ type: type, position: position }}
-          hasAnimation={false}
         />
       ))}
     </>

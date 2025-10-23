@@ -38,6 +38,10 @@ interface GameState {
   isGameOver: boolean;
 }
 
+interface BlockCellProps {
+  cell: Cell;
+}
+
 interface GameBlockProps {
   block: Block;
 }
@@ -79,6 +83,7 @@ type RotationMatrix = Array<Array<Delta>>;
 
 export type {
   Block,
+  BlockCellProps,
   Bounds,
   CellColorMap,
   CellType,
